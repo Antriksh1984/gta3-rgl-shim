@@ -5,6 +5,8 @@ Play your **modded, downgraded GTA III 1.0** through the **Rockstar Games Launch
 Most GTA III mods need the original 1.0 executable, but the Rockstar Games Launcher (RGL) ships its own build. If you start a downgraded copy directly, the launcher isn't involved and your saves never sync. This shim sits in the RGL game folder. When you click **Play**, it quietly starts your modded 1.0 game instead. The launcher sees a normal session, so it syncs your saves before you play and uploads them after you quit.
 
 > Unofficial fan project, not affiliated with or endorsed by Rockstar Games or Take-Two. It contains no game files and never modifies `gta3.exe`.
+>
+> Sister project for Vice City: [gtavc-rgl-shim](https://github.com/Antriksh1984/gtavc-rgl-shim). Both work the same way.
 
 ## Download and install
 
