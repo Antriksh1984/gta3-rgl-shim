@@ -89,6 +89,9 @@ TROUBLESHOOTING
   set DebugChild=1 in shim.ini and reproduce the problem. If it freezes,
   press Ctrl+Shift+F12, wait 2 seconds, then Alt+F4. shim.log will then
   contain detailed diagnostics. Set DebugChild back to 0 afterwards.
+- Low FPS or stutter only when started through the launcher:
+  make sure TuneChild=1 (the default). shim.log shows the game's priority,
+  CPU cores, job and power-throttling state at every launch.
 - Odd exit codes in shim.log (0, 13, 14286, ...) are normal: the 1.0 game
   returns a random value when you quit.
 
@@ -101,4 +104,6 @@ SHIM.INI SETTINGS
   SaveFolder=       empty = Documents\GTA3 User Files
   BackupSaves=1     back up saves before each launch
   KeepBackups=10    how many backups to keep (0 = all)
+  TuneChild=1       start the game free of the launcher's limits
+                    (fixes low FPS/stutter; 0 = off)
   DebugChild=0      diagnostics only

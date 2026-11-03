@@ -35,6 +35,7 @@ Install.bat "D:\Games\Grand Theft Auto III" "D:\Games\GTA3 Modded\gta3.exe"
    - logs the session and backs up the save folder;
    - clears the inherited `__COMPAT_LAYER`. The RGL exe runs under a `DWM8And16BitMitigation` compatibility layer, which the modded game would otherwise inherit.
    - starts the modded 1.0 `gta3.exe` in its own folder, inside a Job object, so the modded game dies if the launcher kills the official process;
+   - starts it **outside the launcher's job** and opts it out of Windows power throttling (EcoQoS and ignored timer resolution). Otherwise Windows treats it as part of the background launcher, which shows up as low FPS and stutter.
    - waits for it to exit **while pumping window messages**. A plain blocking wait freezes the modded game's save menu, because the game ends up waiting on its parent to answer a message.
    - exits with the same exit code.
 4. **What the launcher sees.** One normal `gta3.exe` session, so it syncs saves down before launch and up after exit.
@@ -54,6 +55,7 @@ ExtraArgs=
 SaveFolder=
 BackupSaves=1
 KeepBackups=10
+TuneChild=1
 DebugChild=0
 ```
 
@@ -64,6 +66,7 @@ DebugChild=0
 | `ExtraArgs` | Extra command-line arguments for the modded game |
 | `SaveFolder` | Save folder to back up; empty = `Documents\GTA3 User Files` (resolves OneDrive-redirected Documents) |
 | `BackupSaves` / `KeepBackups` | Copy saves to `%LOCALAPPDATA%\GTA3Shim\backups\<timestamp>\` before each launch and keep the newest N (`0` = all). These copies are never uploaded. |
+| `TuneChild` | `1` (default): start the game outside the launcher's job, with full CPU speed, honoured timer resolution, all cores, and at least normal priority. `0` = start it exactly as inherited. |
 | `DebugChild` | Diagnostics only. Runs the game under a built-in debugger that logs exceptions, debug output and quit calls with stack traces. It dumps all thread stacks when the game window stops responding, or on **Ctrl+Shift+F12**. |
 
 `shim.ini` lives in the RGL game folder, which is read-only for normal users, so you need an editor running as administrator to change it.

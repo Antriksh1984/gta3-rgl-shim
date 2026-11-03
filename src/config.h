@@ -9,6 +9,7 @@ struct ShimConfig {
     bool backupSaves = true;
     int keepBackups = 10;     // 0 = keep all
     bool debugChild = false;  // diagnostic: run the game under a logging debugger
+    bool tuneChild = true;    // undo inherited priority/affinity/job/throttling limits
 };
 
 // Reads [Shim] from iniPath. Returns false (with `error` set) if the file is

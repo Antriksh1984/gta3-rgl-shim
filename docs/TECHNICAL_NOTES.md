@@ -50,6 +50,17 @@ With a plain `WaitForSingleObject` in the parent, the modded game froze as soon 
 
 Waiting with `MsgWaitForMultipleObjects` and dispatching messages fixed it. The debug loop does the same between debug events.
 
+## Low FPS and stutter (fixed in 1.1.0)
+
+Through the shim, the modded game ran noticeably slower and stuttered, while a direct launch of the same exe was smooth. Priority, CPU affinity, and I/O and memory priority were identical either way. The launcher starts `gta3.exe` inside a job (limit flags `0x800`, breakaway allowed, no CPU-rate limits), and the game inherited membership of it.
+
+Since 1.1.0 the shim (with `TuneChild=1`):
+- creates the game with `CREATE_BREAKAWAY_FROM_JOB`, falling back to normal creation if the job forbids it;
+- sets `ProcessPowerThrottling` with `EXECUTION_SPEED | IGNORE_TIMER_RESOLUTION` in the control mask and a clear state mask, opting the game out of EcoQoS and keeping its `timeBeginPeriod` requests effective (the frame limiter depends on them);
+- normalises priority class, affinity, and I/O and memory priority if they were lowered.
+
+This fixed it. Most likely, Windows 11 power management was attributing the game to the background launcher's process tree.
+
 ## Debug mode (`DebugChild=1`)
 
 The shim creates the game with `DEBUG_ONLY_THIS_PROCESS` and acts as a minimal debugger. It sets `_NO_DEBUG_HEAP=1` so the game keeps its normal heap. It logs:

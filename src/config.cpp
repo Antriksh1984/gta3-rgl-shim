@@ -39,6 +39,7 @@ bool LoadConfig(const std::wstring& iniPath, ShimConfig& out, std::wstring& erro
     out.backupSaves = GetPrivateProfileIntW(L"Shim", L"BackupSaves", 1, ini) != 0;
     out.keepBackups = int(GetPrivateProfileIntW(L"Shim", L"KeepBackups", 10, ini));
     out.debugChild  = GetPrivateProfileIntW(L"Shim", L"DebugChild", 0, ini) != 0;
+    out.tuneChild   = GetPrivateProfileIntW(L"Shim", L"TuneChild", 1, ini) != 0;
     out.moddedExe   = ExpandPath(ReadString(iniPath, L"ModdedExe"));
     out.extraArgs   = ReadString(iniPath, L"ExtraArgs");
     out.saveFolder  = ExpandPath(ReadString(iniPath, L"SaveFolder"));

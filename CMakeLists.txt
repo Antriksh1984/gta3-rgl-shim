@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(gta3_shim VERSION 1.0.0 LANGUAGES CXX RC)
+project(gta3_shim VERSION 1.1.0 LANGUAGES CXX RC)
 
 # GTA III is a 32-bit process; an x64 DLL would simply fail to load.
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -21,6 +21,7 @@ add_library(gta3shim SHARED
   src/config.cpp
   src/backup.cpp
   src/debugwatch.cpp
+  src/procstate.cpp
   src/log.cpp
   src/exports.def
   src/version.rc

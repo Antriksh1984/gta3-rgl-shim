@@ -3,6 +3,7 @@
 #include "config.h"
 #include "debugwatch.h"
 #include "log.h"
+#include "procstate.h"
 #include "version.h"
 
 #include <filesystem>
@@ -154,11 +155,27 @@ static void RunShim()
         SetEnvironmentVariableW(L"_NO_DEBUG_HEAP", L"1");
         Log(L"DebugChild=1: running the game under the shim's debugger");
     }
+    // What the game would inherit from us (and the launcher's job, if any).
+    LogProcessState(GetCurrentProcess(), L"Shim process");
+    LogOwnJobLimits();
+
     STARTUPINFOW si = {sizeof(si)};
     PROCESS_INFORMATION pi = {};
     // Start suspended so it is in the job before it runs a single instruction.
-    if (!CreateProcessW(cfg.moddedExe.c_str(), cmdBuf.data(), nullptr, nullptr, FALSE,
-                        flags, nullptr, workDir.c_str(), &si, &pi)) {
+    // With TuneChild, first try to leave the launcher's job so its limits don't
+    // apply to the game; our own kill-on-close job still ties the game to us.
+    BOOL inJob = FALSE;
+    IsProcessInJob(GetCurrentProcess(), nullptr, &inJob);
+    bool created = false;
+    if (cfg.tuneChild && inJob) {
+        created = CreateProcessW(cfg.moddedExe.c_str(), cmdBuf.data(), nullptr, nullptr, FALSE,
+                                 flags | CREATE_BREAKAWAY_FROM_JOB, nullptr, workDir.c_str(), &si, &pi) != 0;
+        Log(created ? L"Game started outside the launcher's job"
+                    : L"Launcher's job doesn't allow breakaway (%lu); starting the game inside it",
+            GetLastError());
+    }
+    if (!created && !CreateProcessW(cfg.moddedExe.c_str(), cmdBuf.data(), nullptr, nullptr, FALSE,
+                                    flags, nullptr, workDir.c_str(), &si, &pi)) {
         Log(L"ERROR: CreateProcess('%s') failed (%lu). Falling back to vanilla.",
             cfg.moddedExe.c_str(), GetLastError());
         SetEnvironmentVariableW(kChildEnv, nullptr);
@@ -168,6 +185,10 @@ static void RunShim()
         return;
     }
     Log(L"Launched '%s' (pid %lu), cwd '%s'", cmd.c_str(), pi.dwProcessId, workDir.c_str());
+
+    if (cfg.tuneChild)
+        TuneChildProcess(pi.hProcess);
+    LogProcessState(pi.hProcess, L"Game process");
 
     if (!AssignProcessToJobObject(job, pi.hProcess))
         Log(L"WARN: AssignProcessToJobObject failed (%lu); the game won't be killed with us",

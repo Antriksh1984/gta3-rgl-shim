@@ -93,6 +93,8 @@ SaveFolder=
 ; Copy saves to %LOCALAPPDATA%\GTA3Shim\backups before each launch
 BackupSaves=1
 KeepBackups=10
+; Start the game outside the launcher's job, unthrottled (fixes low FPS/stutter)
+TuneChild=1
 ; Diagnostics only: run the game under the shim's debugger and log details
 DebugChild=0
 "@
